@@ -3,123 +3,114 @@
 Site vitrine de B.CREA, personnalisation d'objets à Manduel (Gard).
 Site créé à l'aide de Claude par Clémence Despierre.
 
----
-
-## 1. Mettre le site en ligne avec GitHub Pages
-
-1. Créez un compte gratuit sur **https://github.com** (ou connectez-vous).
-2. En haut à droite, cliquez sur **+** puis **New repository**.
-   - **Repository name** : `bcrea` (ou le nom de votre choix).
-   - Laissez **Public** coché : c'est nécessaire pour GitHub Pages gratuit. Ce dossier ne contient que des informations publiques, aucune donnée client.
-   - Cliquez sur **Create repository**.
-3. Sur la page qui s'ouvre, cliquez sur le lien **uploading an existing file**.
-4. Décompressez le fichier `bcrea-site-github.zip` sur votre ordinateur, ouvrez le dossier `bcrea-github`, sélectionnez **tout son contenu** (fichiers et dossiers : `index.html`, `css`, `js`, `images`, `content`, `.nojekyll`, `README.md`) et glissez-le dans la page GitHub.
-   - Sur Mac, le fichier `.nojekyll` est caché : appuyez sur **Cmd + Maj + .** pour l'afficher. S'il manque, ce n'est pas grave.
-5. En bas, cliquez sur **Commit changes**.
-6. Allez dans **Settings** (onglet du dépôt) → **Pages** (menu de gauche).
-   - **Source** : *Deploy from a branch*.
-   - **Branch** : `main`, dossier `/ (root)`, puis **Save**.
-7. Patientez une à deux minutes, puis actualisez la page : l'adresse du site s'affiche, du type
-   `https://VOTRE-NOM.github.io/bcrea/`.
+Le site est hébergé gratuitement par **GitHub Pages**. Deux services gratuits s'y ajoutent :
+- **Web3Forms** envoie les demandes de devis par email à B.CREA ;
+- **Supabase** fait fonctionner l'**espace privé** : Béatrice s'y connecte avec son email et son mot de passe (plus un code si la double authentification est activée) et modifie le site elle-même.
 
 ---
 
-## 2. Activer le formulaire de devis (obligatoire)
+## 1. Mettre le site en ligne (GitHub Pages)
 
-Les demandes de devis et les demandes professionnelles sont envoyées **par email à b.crea30@gmail.com** grâce au service gratuit **Web3Forms**. Le site lui-même ne garde aucune donnée.
+1. Dépôt GitHub → **Add file → Upload files**, glissez **tout le contenu** du dossier `bcrea-github` (fichiers et dossiers), puis **Commit changes**.
+2. **Settings → Pages** → Source *Deploy from a branch*, branche `main`, dossier `/ (root)` → **Save**.
+3. Après une à deux minutes, le site est en ligne, par exemple sur `https://clemdpr.github.io/b.crea/`.
 
-1. Allez sur **https://web3forms.com**.
-2. Saisissez **b.crea30@gmail.com** et validez.
-3. B.CREA reçoit un email contenant une **Access Key**.
-4. Sur GitHub, ouvrez le fichier `js/config.js`, cliquez sur le **crayon** (Edit).
-5. Remplacez `COLLER-ICI-LA-CLE-WEB3FORMS` par la clé, en gardant les guillemets.
-6. Cliquez sur **Commit changes**.
-
-Tant que la clé n'est pas collée, le formulaire propose au client de copier son message pour l'envoyer par Messenger.
-
-À savoir :
-- Chaque demande arrive par email, avec toutes les informations saisies. En répondant à cet email, on répond directement au client.
-- Selon l'offre Web3Forms, l'envoi de pièces jointes et l'email de confirmation automatique au client peuvent être payants. Le site indique donc aux clients d'envoyer leurs photos en réponse à l'email de B.CREA, et affiche le message de confirmation à l'écran.
+Pour une mise à jour, refaites l'étape 1 avec les nouveaux fichiers : ceux qui portent le même nom sont remplacés.
 
 ---
 
-## 3. Modifier le contenu (sans toucher au code)
+## 2. Activer le formulaire de devis (Web3Forms)
 
-Tout ce qui change souvent se trouve dans le dossier **`content/`**. Pour modifier un fichier : ouvrez-le sur GitHub, cliquez sur le **crayon**, modifiez, puis **Commit changes**. Le site se met à jour en une à deux minutes.
+1. Allez sur **https://web3forms.com**, entrez **b.crea30@gmail.com** et validez.
+2. B.CREA reçoit par email une **Access Key**.
+3. Sur GitHub, ouvrez `js/config.js`, cliquez sur le **crayon** et remplacez `COLLER-ICI-LA-CLE-WEB3FORMS` par la clé, en gardant les guillemets.
+4. Cliquez sur **Commit changes**.
 
-**Attention aux guillemets et aux virgules** : chaque texte est entre guillemets `"…"`, et les éléments d'une liste sont séparés par des virgules (pas de virgule après le dernier).
+Les demandes arrivent par email. En répondant à cet email, on répond directement au client. Selon l'offre Web3Forms, les pièces jointes et l'email de confirmation automatique peuvent être payants : le site invite donc les clients à envoyer leurs photos en réponse à l'email de B.CREA.
 
-| Fichier | Contenu |
+---
+
+## 3. Activer l'espace privé (Supabase), une seule fois, environ 15 minutes
+
+### a. Créer le projet
+1. Allez sur **https://supabase.com** → **Start your project**, puis créez un compte gratuit.
+2. **New project** :
+   - **Name** : `bcrea` ;
+   - **Database Password** : cliquez sur *Generate* et gardez-le précieusement (il ne sert pas à Béatrice) ;
+   - **Region** : *Europe (Paris)* ou la plus proche ;
+   - **Create new project**, puis patientez une à deux minutes.
+
+### b. Installer la base
+1. Menu de gauche : **SQL Editor** → **New query**.
+2. Ouvrez le fichier `supabase/installation.sql` de ce dossier, copiez **tout** son contenu et collez-le dans l'éditeur.
+3. Cliquez sur **Run**. Le message *Success. No rows returned* doit s'afficher.
+
+Ce script crée le stockage des textes et des photos, et n'autorise **que b.crea30@gmail.com** à modifier le site.
+
+### c. Fermer les inscriptions
+**Authentication → Sign In / Providers** : désactivez **Allow new users to sign up**, puis **Save**.
+Personne ne pourra se créer un compte sur le site.
+
+### d. Créer le compte de Béatrice
+1. **Authentication → Users → Add user → Create new user**.
+2. Email : `b.crea30@gmail.com`, puis choisissez un mot de passe (8 caractères minimum) et cochez **Auto Confirm User**.
+3. **Create user**.
+
+### e. Adresse du site (pour « Mot de passe oublié »)
+**Authentication → URL Configuration** :
+- **Site URL** : l'adresse du site, par exemple `https://clemdpr.github.io/b.crea/` ;
+- **Save**.
+
+### f. Relier le site à Supabase
+1. En haut de la page du projet, cliquez sur **Connect** (ou **Project Settings → API Keys**).
+2. Copiez :
+   - la **Project URL**, de la forme `https://xxxxxxxx.supabase.co` ;
+   - la clé **anon / publishable** (publique).
+   **Ne copiez jamais la clé « service_role » ou « secret ».**
+3. Sur GitHub, ouvrez `js/config.js`, cliquez sur le **crayon** et collez-les à la place de `COLLER-ICI-L-URL-SUPABASE` et `COLLER-ICI-LA-CLE-ANON-PUBLIQUE`.
+4. Cliquez sur **Commit changes**.
+
+### g. Tester
+En bas du site, cliquez sur **Accès privé**, puis connectez-vous avec l'email et le mot de passe créés en *d*.
+
+---
+
+## 4. Utiliser l'espace privé (pour Béatrice)
+
+En bas de chaque page : **Accès privé** → email et mot de passe.
+
+| Onglet | Ce qu'on y fait |
 |---|---|
-| `content/site.json` | L'annonce en haut du site (`"annonce"`), l'email et le téléphone affichés |
-| `content/actus.json` | La page **À la une** : articles et événements |
-| `content/boutique.json` | Les articles de la **Boutique**, avec prix et stock |
-| `content/tarifs.json` | La liste des créations et leurs prix (page Créations et choix du formulaire) |
-| `content/galerie.json` | Les photos des **Réalisations** |
-| `content/avis.json` | Les **avis clients** à afficher |
+| **Textes du site** | « Modifier les textes du site » : on clique directement sur un titre ou un paragraphe pour le réécrire, puis **Enregistrer** en bas de l'écran. Un mot entre `*astérisques*` s'écrit en italique rose. |
+| **Annonce & contact** | Le bandeau d'annonce en haut du site, l'email et le téléphone affichés |
+| **À la une** | Événements (marchés, salons…) et articles du moment, avec photo |
+| **Boutique** | Articles prêts à offrir : photos, prix, description, stock (boutons − / +). À 0 : « Rupture de stock ». |
+| **Tarifs** | La liste des créations et leurs prix (vide = « Sur devis ») |
+| **Galerie** | Les photos des réalisations. Les 8 premières défilent sur l'accueil. |
+| **Avis** | Les vrais avis reçus, avec une réponse si vous le souhaitez |
+| **Sécurité** | Activer la **double authentification**, changer de mot de passe |
 
-### Ajouter une photo
-1. Ouvrez le dossier `images/galerie` (ou `images/boutique`, `images/actus`).
-2. **Add file** → **Upload files**, glissez la photo, **Commit changes**.
-   Astuce : nommez les photos sans espaces ni accents, par exemple `mug-rose.jpg`.
-3. Indiquez son chemin dans le fichier JSON concerné, par exemple `"images/boutique/mug-rose.jpg"`.
+Les modifications sont visibles sur le site **immédiatement** pour les nouveaux visiteurs.
 
-### Exemples
+### Double authentification (conseillée)
+Onglet **Sécurité** → **Activer la double authentification** :
+1. installez sur votre téléphone une application comme **Google Authenticator** ou **Microsoft Authenticator** ;
+2. scannez le QR code affiché ;
+3. entrez le code à 6 chiffres.
 
-**Un événement** dans `content/actus.json` (`"type"` vaut `"evenement"` ou `"article"`) :
-```json
-[
-  {
-    "type": "evenement",
-    "titre": "Marché de Noël du Mas de Laune",
-    "date": "2026-12-13",
-    "lieu": "Mas de Laune, Manduel",
-    "texte": "Retrouvez B.CREA et ses créations au marché de Noël.",
-    "photo": ""
-  }
-]
-```
-La date s'écrit `AAAA-MM-JJ`. Les événements passés disparaissent tout seuls du site.
+Ensuite, chaque connexion demande le mot de passe **et** le code du moment.
+Si le téléphone est perdu, l'administratrice du projet Supabase peut supprimer le facteur : **Authentication → Users →** l'utilisateur **→ MFA factors**.
 
-**Un article de la boutique** dans `content/boutique.json` :
-```json
-[
-  {
-    "nom": "Porte-clés cœur",
-    "prix": "8 €",
-    "stock": 5,
-    "description": "Porte-clés en métal, prêt à offrir.",
-    "photos": ["images/boutique/porte-cles-coeur.jpg"]
-  }
-]
-```
-Mettez `"stock": 0` pour afficher **Rupture de stock**. Laissez `"prix": ""` pour afficher **Sur devis**.
-
-**Une photo de réalisation** dans `content/galerie.json` (`"categorie"` vaut `mariage`, `fetes`, `objets`, `coffrets` ou `octobre`) :
-```json
-{ "image": "images/galerie/mug-rose.jpg", "titre": "Mug « Super mamie »", "categorie": "objets" }
-```
-
-**Un tarif** dans `content/tarifs.json` (`"rubrique"` vaut `objets` ou `fetes`) :
-```json
-{ "nom": "Mugs", "rubrique": "objets", "prix": "dès 12 €" }
-```
-
-**Un avis** dans `content/avis.json` (uniquement de vrais avis reçus) :
-```json
-[
-  { "prenom": "Julie", "note": 5, "date": "novembre 2026", "texte": "Super travail !", "reponse": "Merci Julie !" }
-]
-```
-
-### Modifier les autres textes
-Les textes des pages (présentation, infos pratiques, FAQ, mentions légales, CGV…) sont dans `index.html`. Ouvrez-le avec le crayon, utilisez **Ctrl + F** (ou **Cmd + F**) pour retrouver la phrase, modifiez-la, puis **Commit changes**.
+### Mot de passe oublié
+Sur l'écran de connexion : saisissez l'email, puis cliquez sur **Mot de passe oublié ?**. Le lien reçu par email ramène sur le site pour choisir un nouveau mot de passe.
 
 ---
 
-## 4. À ne pas oublier
+## 5. À savoir
 
-- **Ne mettez jamais de données clients** (noms, adresses, commandes) dans ce dossier : il est public. Les commandes se gèrent dans *Gestion boutique*.
-- **Photos avec des prénoms** (plaque « Jules & Anne », panneau « Fanny & Benjamin », marque-places, cadre Scrabble) : vérifiez l'accord des clients, sinon retirez-les de `content/galerie.json`.
-- **Médiateur de la consommation** : une fois l'adhésion faite, ajoutez son nom dans les CGV (`index.html`, section « Litiges et médiation »).
-- **Nom de domaine** (par exemple `bcrea.fr`) : il peut être acheté chez un registraire, puis indiqué dans **Settings → Pages → Custom domain**.
+- **Sécurité** : la clé Supabase de `config.js` est publique par nature. Ce sont les règles installées en *3.b* qui protègent le site : seule `b.crea30@gmail.com`, connectée, peut modifier quoi que ce soit.
+- **Si Supabase est indisponible** (par exemple un projet gratuit mis en pause après une longue inactivité), le site continue de s'afficher avec les contenus de secours du dossier `content/`. Il suffit de relancer le projet depuis supabase.com.
+- **Aucune donnée client** ne doit être mise dans ce dépôt GitHub, qui est public. Les demandes arrivent par email.
+- **Photos avec des prénoms** (plaque « Jules & Anne », panneau « Fanny & Benjamin », marque-places, cadre Scrabble) : vérifiez l'accord des clients, sinon supprimez-les depuis l'onglet **Galerie**.
+- **Médiateur de la consommation** : une fois l'adhésion faite, ajoutez son nom dans les CGV, via l'onglet Textes du site.
+- **Nom de domaine** (par exemple `bcrea.fr`) : il peut être acheté chez un registraire, puis indiqué dans **GitHub → Settings → Pages → Custom domain**. Pensez alors à mettre à jour la *Site URL* dans Supabase.

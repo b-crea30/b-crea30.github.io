@@ -490,16 +490,52 @@
   </section>
 
 </div>
+<div id="view-prive" hidden>
+  <section class="page-top admin-page">
+    <div class="wrap">
+      <div class="admin-top">
+        <div><h1 class="page-h">Espace privé</h1></div>
+        <div class="tools" id="adm-actions" hidden><button type="button" class="btn small-btn" id="adm-logout">Se déconnecter</button></div>
+      </div>
+      <div class="login-wrap" id="adm-login">
+        <div class="panel">
+          <h3 id="lg-title">Connexion</h3>
+          <form class="stack" id="lg-form" novalidate>
+            <div class="field" id="lg-email-f"><label for="lg-email">Email</label><input id="lg-email" type="email" autocomplete="username" inputmode="email"></div>
+            <div class="field" id="lg-pass-f"><label for="lg-pass">Mot de passe</label><input id="lg-pass" type="password" autocomplete="current-password"></div>
+            <div class="field" id="lg-code-f" hidden><label for="lg-code">Code à 6 chiffres</label><input id="lg-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></div>
+            <div class="field" id="lg-new-f" hidden><label for="lg-new">Nouveau mot de passe</label><input id="lg-new" type="password" autocomplete="new-password"></div>
+            <div class="tools"><button type="submit" class="btn solid small-btn" id="lg-send">Se connecter</button><button type="button" class="link-btn muted" id="lg-forgot">Mot de passe oublié ?</button></div>
+            <p class="hint" id="lg-st" aria-live="polite"></p>
+          </form>
+          <p class="hint" id="lg-off" hidden>L'espace privé n'est pas encore activé : renseignez les deux codes Supabase dans le fichier js/config.js.</p>
+        </div>
+      </div>
+      <div id="adm-content" hidden>
+        <div class="tabs" role="tablist" aria-label="Rubriques de l'espace privé" id="adm-tabs"></div>
+        <div id="adm-panels"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="edit-bar" id="edit-bar" hidden>
+  <div class="wrap edit-inner">
+    <span><b>Mode modification des textes</b> <span class="hint" id="edit-count">Cliquez sur un texte pour le modifier.</span></span>
+    <span class="tools"><button type="button" class="btn solid small-btn" id="edit-save">Enregistrer</button><button type="button" class="btn small-btn" id="edit-quit">Quitter</button></span>
+  </div>
+</div>
 </main>
 
 <footer>
   <div class="wrap">
     <span class="foot-copy">© 2026 B.CREA · Personnalisation d'objets &amp; tissus · Manduel (30)</span>
-    <span class="foot-links"><a href="#infos">Infos pratiques</a><a href="#faq">FAQ</a><a href="#mentions">Mentions légales</a><a href="#confidentialite">Confidentialité</a><a href="#cgv">CGV</a><a href="https://www.facebook.com/profile.php?id=61564861842129" target="_blank" rel="noopener">Facebook</a></span>
+    <span class="foot-links"><a href="#infos">Infos pratiques</a><a href="#faq">FAQ</a><a href="#mentions">Mentions légales</a><a href="#confidentialite">Confidentialité</a><a href="#cgv">CGV</a><a href="https://www.facebook.com/profile.php?id=61564861842129" target="_blank" rel="noopener">Facebook</a><a href="#prive" rel="nofollow">Accès privé</a></span>
   </div>
 </footer>
 
 <script src="js/config.js"></script>
 <script src="js/site.js"></script>
+<script src="js/admin.js"></script>
 </body>
 </html>
