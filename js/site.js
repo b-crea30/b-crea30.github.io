@@ -31,7 +31,7 @@ async function load(name) {
 }
 
 /* ---------- menu et pages ---------- */
-const VIEWS = ['home', 'une', 'creations', 'boutique', 'pro', 'avis', 'devis', 'infos', 'legal'];
+const VIEWS = ['home', 'une', 'creations', 'boutique', 'pro', 'avis', 'devis', 'infos', 'legal', 'prive'];
 const SUB = { faq: 'infos', mentions: 'legal', confidentialite: 'legal', cgv: 'legal', realisations: 'creations', occasions: 'creations', categories: 'creations', presentation: 'home', 'pro-form-anchor': 'pro' };
 function setMenu(open) { $('nav').classList.toggle('open', open); $('menu-btn').setAttribute('aria-expanded', open); }
 $('menu-btn').addEventListener('click', () => setMenu(!$('nav').classList.contains('open')));
@@ -47,6 +47,7 @@ function route() {
     if (v === 'home' ? t === 'accueil' : t === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
   setMenu(false);
+  document.dispatchEvent(new CustomEvent('bcrea:view', { detail: v }));
   if (VIEWS.includes(h) || !h || h === 'accueil') { window.scrollTo(0, 0); return; }
   const t = document.getElementById(h); if (t) requestAnimationFrame(() => t.scrollIntoView());
 }
@@ -278,10 +279,11 @@ $('pro-again').addEventListener('click', () => { $('pro-done').hidden = true; $(
     });
     raf = requestAnimationFrame(draw);
   };
-  const run = () => { cancelAnimationFrame(raf); if (calm.matches || document.hidden || $('view-home').hidden) { ctx.clearRect(0, 0, W, H); return; } raf = requestAnimationFrame(draw); };
+  const run = () => { cancelAnimationFrame(raf); if (calm.matches || document.hidden || $('view-home').hidden || document.body.classList.contains('editing')) { ctx.clearRect(0, 0, W, H); return; } raf = requestAnimationFrame(draw); };
   size(); ps = Array.from({ length: W < 600 ? 9 : 16 }, () => mk(Math.random() * H));
   addEventListener('resize', () => { size(); ps.forEach(p => { if (p.x > W) p.x = Math.random() * W; }); });
   document.addEventListener('visibilitychange', run);
+  new MutationObserver(run).observe(document.body, { attributes: true, attributeFilter: ['class'] });
   addEventListener('hashchange', () => setTimeout(() => { size(); run(); }, 60));
   new MutationObserver(() => { col = getComputedStyle(root).getPropertyValue('--thread').trim() || col; }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
   run();
@@ -292,15 +294,62 @@ $('pro-again').addEventListener('click', () => { $('pro-done').hidden = true; $(
   const tag = document.querySelector('.hero .tag'); if (!tag) return;
   let ang = 0, target = 0, raf = 0;
   const step = () => { ang += (target - ang) * 0.035; tag.style.rotate = ang.toFixed(2) + 'deg'; if (Math.abs(target - ang) < 0.03) { raf = 0; return; } raf = requestAnimationFrame(step); };
-  const go = () => { if (calm.matches || $('view-home').hidden) return; target = 16 * Math.sin(scrollY / 110); if (!raf) raf = requestAnimationFrame(step); };
+  const go = () => { if (calm.matches || $('view-home').hidden || document.body.classList.contains('editing')) return; target = 16 * Math.sin(scrollY / 110); if (!raf) raf = requestAnimationFrame(step); };
   addEventListener('scroll', go, { passive: true });
   tag.addEventListener('pointerenter', () => { target += ang > 0 ? -8 : 8; if (!raf) raf = requestAnimationFrame(step); setTimeout(go, 700); });
 })();
 
+/* ---------- textes modifiables ---------- */
+const EDIT_ROOTS = '#view-infos,#view-legal article,#view-legal .page-intro,#view-home,#view-creations,#view-une .page-intro,#view-boutique .page-intro,#view-pro,#view-avis .head,#view-devis .where,#view-devis #etapes,footer';
+const EDIT_SKIP = '#rv-list,#rv-summary,#gallery,#car-track,#news-home,#news-all,#shop-grid,form,.filters,#categories ul,#home-rating,#announce,.done,#pro-contact,#devis-contact,.carousel,.foot-links,#view-prive';
+const EDIT_TAGS = 'h1,h2,h3,p,li,a.btn,.chip,.facts b,.facts span,.place b,.tag b,.pro-points b,.pro-points span,span.foot-copy';
+const TX = {};
+const toMarkup = n => { const c = n.cloneNode(true); c.querySelectorAll('em,i').forEach(e => e.replaceWith('*' + e.textContent + '*')); c.querySelectorAll('br').forEach(b => b.replaceWith(' ')); return c.textContent.replace(/\s+/g, ' ').trim(); };
+const fromMarkup = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/\*([^*]+)\*/g, '<em>$1</em>');
+const hashStr = t => { let h = 5381; for (const ch of t) h = ((h * 33) ^ ch.charCodeAt(0)) >>> 0; return h.toString(36); };
+function initTexts() {
+  const seen = {};
+  document.querySelectorAll(EDIT_ROOTS).forEach(rootEl => {
+    const vid = (rootEl.closest('[id^="view-"]') || { id: 'footer' }).id;
+    rootEl.querySelectorAll(EDIT_TAGS).forEach(n => {
+      if (n.dataset.k || n.closest(EDIT_SKIP)) return;
+      if ([...n.children].some(c => !['EM', 'I', 'BR'].includes(c.tagName))) return;
+      const mk = toMarkup(n); if (!mk) return;
+      const base = vid + '.' + hashStr(mk); seen[base] = (seen[base] || 0) + 1;
+      const k = base + (seen[base] > 1 ? '-' + seen[base] : ''); n.dataset.k = k; TX[k] = { el: n, def: mk };
+    });
+  });
+}
+const curText = k => { const v = D.textes && D.textes[k]; return typeof v === 'string' && v.trim() ? v : TX[k].def; };
+function applyTexts(skip) { Object.entries(TX).forEach(([k, { el: n }]) => { if (skip && skip(k, n)) return; n.innerHTML = fromMarkup(curText(k)); }); }
+
 /* ---------- démarrage ---------- */
+const KEYS = ['site', 'galerie', 'tarifs', 'actus', 'boutique', 'avis'];
+const SB = (CFG.supabaseUrl || '').trim().replace(/\/+$/, ''), SBK = (CFG.supabaseAnonKey || '').trim();
+const sbReady = /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(SB) && SBK.length > 30;
+const D = {}, DEF = {};
+const CAT_DEFAULT = CAT_LISTS.flatMap((ul, i) => [...ul.querySelectorAll('li')].map(li => ({ nom: li.textContent.trim(), rubrique: CAT_KEYS[i], prix: '' })));
+async function loadRemote() {
+  if (!sbReady) return {};
+  try {
+    const r = await fetch(SB + '/rest/v1/contenu?select=cle,valeur', { headers: { apikey: SBK }, cache: 'no-store' });
+    if (!r.ok) throw 0; const rows = await r.json();
+    return Object.fromEntries((rows || []).map(x => [x.cle, x.valeur]));
+  } catch (e) { return {}; }
+}
+function renderAll() {
+  S.site = D.site || {}; renderSite();
+  renderGallery(D.galerie); renderTarifs(D.tarifs && D.tarifs.length ? D.tarifs : CAT_DEFAULT); renderNews(D.actus); renderShop(D.boutique); renderReviews(D.avis);
+  applyTexts(window.BCREA && window.BCREA.skipText);
+}
+initTexts();
 route();
-Promise.all(['site', 'galerie', 'tarifs', 'actus', 'boutique', 'avis'].map(load)).then(([site, galerie, tarifs, actus, boutique, avis]) => {
-  S.site = site || {}; renderSite();
-  renderGallery(galerie); renderTarifs(tarifs); renderNews(actus); renderShop(boutique); renderReviews(avis);
+window.BCREA = { $, el, D, DEF, CAT_DEFAULT, TX, renderAll, applyTexts, fromMarkup, curText, route, sb: { url: SB, key: SBK, ready: sbReady }, skipText: null };
+Promise.all([loadRemote(), ...KEYS.map(load)]).then(([remote, ...locals]) => {
+  KEYS.forEach((k, i) => { DEF[k] = locals[i]; D[k] = remote[k] !== undefined ? remote[k] : locals[i]; });
+  D.textes = remote.textes && typeof remote.textes === 'object' ? remote.textes : {};
+  renderAll();
+  window.BCREA.loaded = true;
+  document.dispatchEvent(new CustomEvent('bcrea:ready'));
 });
 })();
